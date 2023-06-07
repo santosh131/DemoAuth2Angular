@@ -1,0 +1,106 @@
+﻿<div ng-app="FoodProducts">
+    <div class="alert alert-info">
+        All the Food Products
+    </div> 
+    <div ng-controller="FoodProductsController">        
+        <div ng-show="showMessage">
+            <div class="form-group alert alert-warning">
+                <label>{{MessageText}}</label>
+            </div>
+        </div>
+        <table class="table table-bordered table-condensed table-hover">
+            <tr>
+                <th>ID</th>
+                <th>Product Name</th>
+                <th>Quantity</th>
+                <th></th>
+                <th></th>
+                <th></th>
+            </tr>
+            <tr ng-repeat="foodProd in FoodProducts">
+                <td>{{foodProd.Id}}</td>
+                <td>{{foodProd.ProductName}}</td>
+                <td>{{foodProd.Quantity}}</td>
+                <td> <button ng-click="GetFoodProduct(foodProd)">View</button> </td>
+                <td> <button ng-click="GetFoodProductEdit(foodProd)">Edit</button> </td>
+                <td> <button ng-click="GetFoodProductCustFormatter(foodProd)">Show FoodProduct Custom Formatter</button> </td>
+            </tr>
+        </table>
+        <button ng-click="GetFoodProductAdd()">Add New</button>
+        <div class="alert alert-danger"><h4>Details</h4></div>
+        <div ng-show="showDetails" class="panel panel-default">
+            <div class="form-group">
+                <label> Product</label>
+                <img src="{{ImageFileName}}" alt="ProductID {{ProductId}}" width="100" height="100" />
+            </div>
+            <div class="form-group">
+                <label> Product Name</label>
+                <input type="text" value="{{ProductName}}" class="form-control" disabled="disabled" />
+            </div>
+            <div class="form-group">
+                <label> Category Name</label>
+                <input type="text" value="{{CategoryName}}" class="form-control" disabled="disabled" />
+            </div>
+            <div class="form-group">
+                <label>Price</label>
+                <input type="text" value="{{Price|currency}}" class="form-control" disabled="disabled" />
+            </div>
+            <div class="form-group">
+                <label> Quantity</label>
+                <input type="text" value="{{Quantity}}" class="form-control" disabled="disabled" />
+            </div>
+        </div>
+        <div ng-show="showEdit" class="panel panel-default">
+            <form name="productForm">
+                <div ng-hide="showAdd">
+                    <div class="form-group">
+                        <label> Product</label>
+                        <img src="{{ImageFileName}}" alt="ProductID {{ProductId}}" width="100" height="100" />
+                    </div>
+                    <div class="row">
+                        <div class="col-md-2">
+                            <input type="file" id="imgProduct" />
+                        </div>
+                        <div class="col-md-2">
+                            <button ng-click="UploadProductImg()">Upload Image</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label> Product Name</label>
+                    <input type="text" ng-model="editProductName" class="form-control" required />
+                </div>
+                <div class="form-group">
+                    <label> Category Name</label>
+                    @*<input type="text"  ng-model="editCategoryName"  class="form-control" disabled="disabled" />*@
+                    <select ng-model="editCategoryName" ng-options="x.CategoryName for x in Categories" class="form-control" required></select>
+                </div>
+                <div class="form-group">
+                    <label>Price</label>
+                    <input type="text" ng-model="editPrice" class="form-control" required />
+                </div>
+                <div class="form-group">
+                    <label> Quantity</label>
+                    <input type="text" name="editQuantity" ng-model="editQuantity" class="form-control" required />
+                   
+                </div>
+                <div class="form-group">
+                    <div ng-hide="showAdd">
+                        <button ng-click="PutFoodProduct()" ng-disabled="productForm.$invalid" >Save</button>
+                    </div>
+                    <div ng-show="showAdd">
+                        <button ng-click="PostFoodProduct()">Save</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div ng-show="showDetailsCustFormatter">
+            <div class="form-group alert alert-warning">
+                <label>{{FoodProductDetailText}}</label>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="~/Scripts/angular.js"></script>
+<script src="~/NGServices/FoodProductsServices.js"></script>
+<script src="~/NGControllers/FoodProductsController.js"></script>

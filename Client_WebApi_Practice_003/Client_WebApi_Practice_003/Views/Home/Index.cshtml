@@ -1,0 +1,88 @@
+﻿@{
+    ViewBag.Title = "Home Page";
+}
+
+<div class="jumbotron">
+    <h1>ASP.NET</h1>
+    <p class="lead">This is the client application to the WebApi_Practice_003 solution</p>
+
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <input type="button" onclick="LoginToWebApi();" value="LoginToWebApi" class="btn-primary" />
+    </div>
+    <div class="col-md-4">
+
+    </div>
+    <div class="col-md-4">
+
+    </div>
+</div>
+
+<div id='myModal' class='modal fade'>
+    <div class="modal-dialog"> 
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Login to WebApi</h4>
+            </div>
+            <div id='myModalContent'></div>
+        </div>
+    </div>
+
+</div>   
+
+@section scripts
+{
+    <script type="text/javascript">
+
+        //Open the login page in modal popup
+        function LoginToWebApi() {
+            var options = { "backdrop": "static", keyboard: true };
+            $.ajax({
+                url: webApiUri+"/Login",
+                type: "GET",
+                success:function(response,textStatus,s)
+                {
+                    $('#myModalContent').html(response);
+                    $('#myModal').modal(options);
+                    $('#myModal').modal('show');                    
+                },
+                error: function (jqXHR, textStatus, err) {
+                    alert(jqXHR.responseText);
+                }
+            });
+        } 
+
+        //Retrieves the access token from WebApi and stores in session
+        //Note: refer Scripts/RefreshToken.js
+        function Login() {
+            //Note: Refer _Layout.cshtml for webApiUri,clientID,ClientSecret
+            var uri = webApiUri+"/token";
+            var txtUserName = $(".userName")[0].value;
+            var txtPwd = $(".userPwd")[0].value;
+
+            var user = "grant_type=password&username=" + txtUserName + "&password=" + txtPwd + "&client_id=" + clientID + "&client_secret=" + clientSecret;
+            $.ajax({
+                url: uri,
+                type: "POST",
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                crossDomain: true,
+                crossOrigin: true,
+                data: user,
+                success: function (response, textStatus, s) {
+                    //alert(JSON.stringify(response));
+                    console.log(JSON.stringify(response));
+                    SetTokenInSession(response);                    
+                    window.location.href = "/Home/FoodProducts";                    
+                },
+                error: function (jqXHR, textStatus, err) {
+                    alert(jqXHR + " ---" + textStatus + "---" + err);
+                }
+            });
+        }
+    </script>
+}

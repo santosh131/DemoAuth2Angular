@@ -1,0 +1,284 @@
+﻿<div class="jumbotron">
+    <h3>Implementaion of the following in WebApi</h3>
+    <ul class="list-group">
+        <li class="list-group-item">
+            Code First Model
+        </li>
+        <li class="list-group-item">
+            Multiple Get
+        </li>
+        <li class="list-group-item">
+            Custom Media Formatter
+        </li>
+        <li class="list-group-item">
+            Repository Pattern
+        </li>
+        <li class="list-group-item">
+            OAuth2 Authentication
+        </li>
+    </ul>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <h4>
+            <mark> Code First Model</mark>
+        </h4>
+        <ol>
+            <li>Create models (eg:FoodProductsModel.cs,ProductCategory.cs) which has [Key] attribute (implies primary key of table) & [ForeignKey("CategoryId")] if any exists</li>
+            <li>
+                Foreign key can be created in the following way
+                eg:
+                <div style="white-space: pre-wrap;">
+                    public int? CategoryId { get; set; }
+
+                    [ForeignKey("CategoryId")]
+                    public ProductCategory ProductCategory { get; set; })
+                </div>
+            </li>
+            <li>Create class which inherits the DbContext class in Models folder(<mark>eg:TestContext.cs</mark></li>
+            <li>In the constructor inherit the base with the connection name from web.config(<mark>eg: TestContext():base("name=DefaultConnection"))</mark></li>
+            <li>Create the public Properties of type <mark>DbSet&lt;T&gt;</mark> </li>
+            <li>Build the project</li>
+            <li>
+                In the PackageManager console type command to enable
+                <mark>eg: enable-migrations </mark>(this creates the Migrations folder)
+            </li>
+            <li>
+                After enabling the migrations folder- a Migrations folder is created with the Configuration.cs class,
+                in the <mark>Seed </mark> of Configuration class add the data for context class.
+                This adds the reference data to the tables after the table is created
+                <div style="white-space: pre-wrap;">
+                    eg:   context.ProductCategorys.AddOrUpdate(
+                    pc=>pc.CategoryId,
+                    new ProductCategory { CategoryId=1, CategoryName="Fruits" },
+                    new ProductCategory { CategoryId = 2, CategoryName = "Vegetables" },
+                    new ProductCategory { CategoryId = 3, CategoryName = "Meats" },
+                    new ProductCategory { CategoryId = 4, CategoryName = "Drinks" },
+                    new ProductCategory { CategoryId = 5, CategoryName = "Diary" }
+                    );
+                </div>
+            </li>
+            <li>
+                In the PackageManager console type command to add migration
+                <mark>eg: add-migration abc</mark> (this adds the new migration -something like restore point)
+            </li>
+            <li>
+                In the PackageManager console type command to update the migration to database
+                <mark> eg: update-database </mark> creates/updates the tables/ adds refernce data (from the new migration))
+            </li>
+        </ol>
+        <br />
+        -------------------------------------------------------------------------------------------------------------------------
+        <br />
+        <h4><mark> Implement Multiple Get in WebAPI</mark></h4>
+        <ol>
+            <li>
+                In the controller class set the RoutePrefix attribute to the class <mark>(eg: [RoutePrefix("api/FoodProducts")])</mark>
+            </li>
+            <li> Add the [HttpGet] attributes to all the Get functions</li>
+            <li>
+                Add Route attribute to the Get functions <mark>(eg: [Route("SearchFoodProducts")])</mark>
+                <ol>
+                    <li>
+                        If the Get function has paramters then those paramters has to in the attribute
+                        <mark>(eg:  [Route("SearchFoodProducts/{prodName}")])</mark>
+                    </li>
+                    <li>
+                        Configure the App_Start/WebApiConfig.Register function  to add the custom route
+                        <mark>(eg:  config.Routes.MapHttpRoute(name:'CustomApi'...)</mark>
+                    </li>
+                </ol>
+            </li>
+        </ol>
+        <br />
+        -------------------------------------------------------------------------------------------------------------------------
+        <br />
+        <h4>
+            <mark>
+                Custom Media Formatter
+            </mark>
+        </h4>
+        <ol>
+            <li>
+                Create Formatters/FoodProductsFormatter.cs class if the output has to be formatted in a custom specific format(eg: text/custom_food_products , application/custom_food_products)
+                <ol>
+                    <li>
+                        In the contructor of FoodProductsFormatter add the <mark>SupportedMediaTypes</mark> (here custom_food_products) and <mark>SupportedEncodings</mark>(here UTF8Encoding,UnicodeEncoding)
+                        ,while making the ajax request the header must contain- Accept:text/custom_food_products (or) Accept:application/custom_food_products
+                        for this Formatter to work, if the request has <mark>Accept:text/json (or)  Accept:text/xml</mark> then the result will JSON/XML of FoodProductsModel
+                    </li>
+                    <li> Add line App_Start/WebApiConfig.Register function - <mark>config.Formatters.Add(new FoodProductsFormatter());</mark></li>
+                    <li>
+                        When the request is made to api/FoodProducts/GetSearchFoodProducts/Apple,
+                        the result object of type FoodProductsModel is sent to WriteToStream function in FoodProductsFormatter
+                        and output here is custom formatted as "The food product named Apple has a price of 1.00;
+                    </li>
+                </ol>
+            </li>
+        </ol>
+        <br />
+        -------------------------------------------------------------------------------------------------------------------------
+        <br />
+        <h4>
+            <mark> Implement Repository pattern</mark>
+        </h4>
+        <ol>
+            <li>Create interface for repository(eg:IFoodRepository.cs)</li>
+            <li>Create Model & implement the repository interface (eg:FoodRepository.cs)</li>
+            <li> Create an instance of the model in the controller and use it</li>
+        </ol>
+        <br />
+        -------------------------------------------------------------------------------------------------------------------------
+        <br />
+        <h4>
+            <mark> OAuth2 Authentication</mark>
+        </h4>
+        <ol>
+            <li> <mark>Neeeds Microsoft.Owin.Cors,  Microsoft.Owin.Host.SystemWeb</mark></li>
+            <li>
+                <mark> OAuthAuthorizationServerProvider</mark> --Provider/CustomAuthProvider.cs
+                <ol>
+                    <li>Implement GrantResourceOwnerCredentials function</li>
+                    <li>Implement ValidateClientAuthentication function</li>
+                    <li>Implement GrantRefreshToken function (if refresh tokens have to be used)</li>
+                </ol>
+            </li>
+            <li>
+                <mark>IAuthenticationTokenProvider</mark> --Provider/CustomRefreshTokenProvider.cs (if refresh tokens have to be used)
+                <ol>
+                    <li>Implement CreateAsync</li>
+                    <li>
+                        Implement ReceiveAsync
+                    </li>
+                </ol>
+
+            </li>
+            <li>
+                Configure the Startup.cs
+                <ol>
+                    <li>
+                        Configuration function -<mark>app.UseOAuthAuthorizationServer...</mark> to use these providers and set the TokenEndpointPath
+                    </li>
+                    <li>
+                        Add line <mark>app.UseCors(CorsOptions.AllowAll);</mark>  this allows the request to be accepted by external applications
+                    </li>
+                </ol>
+            </li>
+            <li>
+                In the web.config
+                <ol>
+                    <li>
+                        In appsettings
+                        <add key="owin:AutomaticAppStartup" value="true" />
+                    </li>
+                    <li>
+                        Add System.Webserver add tag
+                        <p>
+                            &lt;httpProtocol&gt;
+                            &lt;customHeaders&gt;
+                            &lt;add name="Access-Control-Allow-Origin" value="" /&gt;
+                            &lt;add name="Access-Control-Allow-Headers" value="Content-Type" /&gt;
+                            &lt;add name="Access-Control-Allow-Methods" value="GET, POST, PUT, DELETE, OPTIONS" /&gt;
+
+                            &lt;/customHeaders&gt;
+
+                            &lt;/httpProtocol&gt;
+                        </p>
+                    </li>
+                </ol>
+            </li>
+            <li>
+                Add Authorize attribute to the WebApi controller class <mark>(eg:  [Authorize] for FoodProductsController class)</mark>
+            </li>
+
+            <li>
+                In App_Start/WebApiConfig.Register function- remove line config.SuppressDefaultHostAuthentication();
+                config.Filters.Add(new HostAuthenticationFilter(OAuthDefaults.AuthenticationType));
+            </li>
+
+        </ol>
+        <br />
+        -------------------------------------------------------------------------------------------------------------------------
+        <br />
+        <h4>
+            <mark> Client -Refer Client_WebApi_Practice_003</mark>
+        </h4>
+        <ol>
+            <li>
+                To get data from FoodProductsController WebApi, we need to get the bearer/access token first otherwise we get Unauthorised message
+                <ol>
+                    <li>
+                        To get the access token - make a call to token end point
+                        <mark> eg: http://localhost:64380/token </mark>
+                    </li>
+                </ol>
+            </li>
+            <li>
+                This token has to be called with <mark>Content-Type: application/x-www-form-urlencoded</mark> and the following data
+                <ol>
+
+                    <li>username      -- used to validate the client- which user</li>
+                    <li>password</li>
+                    <li>grant_type    -- Implicit Grant, Authorization,Resource Owner Client Credentials, Client Credentials</li>
+                    <li>client_id     -- used to validate which client app -<mark>(eg: WebApp(App1,SampleApp1...),Mobile APP(MobApp1,SampleMobApp2...),..)</mark></li>
+                    <li>client_secret</li>
+
+                </ol>
+            </li>
+            <li>
+                Once the request has been made, the response is received as json data with following fields
+                <ol>
+                    <li>
+                        access_token
+                    </li>
+                    <li>
+                        token_type
+                    </li>
+                    <li>expires_in</li>
+                    <li>refresh_token (note: this is optional & created only when the IAuthenticationTokenProvider is implemented</li>
+                </ol>
+
+            </li>
+            <li>
+                Take the received access_token,refresh_token and store in session storage in the client side
+                <ol>
+                    <li>
+                        Use this access_token and now call the action in WebApi
+                        <mark>eg: http://localhost:64380/api/FoodProducts/SearchFoodProducts/Apple </mark>
+                    </li>
+                    <li>
+                        The request headers should contain the following
+                        <ol>
+                            <li><mark> Authorization:'Bearer ' + access_token</mark></li>
+                            <li>Content-Type:application/xml</li>
+                            <li>Accept:text/json</li>
+                        </ol>
+                    </li>
+                    <li> The result is the json data</li>
+                </ol>
+            </li>
+
+            <li>
+                If the access_token is expired then the client has to get the token again using the username,password...
+                to avoid this, before the expiration of the access_token make a call to token end point
+                <mark> (eg: http://localhost:64380/token )</mark> with the saved refresh_token value in session
+                <mark> eg: the request should look like this</mark>
+                <ol>
+                    <li>grant_type:refresh_token </li>
+                    <li>client_id:App1</li>
+                    <li>client_secret:test</li>
+                    <li>refresh_token:37b60857-db99-49ee-a5f4-280e128ff5a8</li>
+                </ol>
+            </li>
+            <li>
+                Once the request for refresh token has been made, the response is received as json data with following fields
+                <ol>
+                    <li>access_token(this is the new access token and has to be updated in the session)</li>
+                    <li>token_type</li>
+                    <li> expires_in</li>
+                    <li>refresh_token(this is the new refresh token and has be updated in the session)</li>
+                </ol>
+            </li>
+        </ol>
+    </div>
+</div>
